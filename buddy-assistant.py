@@ -14,7 +14,7 @@ import sys
 r = sr.Recognizer()
 # create handle so we can actually simulate keystrokes through this thing
 keyboard = Controller()
-#currently speaking
+# is program awake/ready to take commands?
 speaking = False
 
 ### functions
@@ -27,9 +27,9 @@ def youtube(query):
 ### main
 def main():
 	if not speaking:
-		if ("shutdown" in log) or ("shut" in log) or ("turn off" in log) or ("be quiet" in log) or ("goodnight" in log):
+		if ("shutdown" in log) or ("shut" in log) or ("turn off" in log) or ("be quiet" in log) or ("goodnight" in log) or ("hush" in log.lower()):
 			sys.exit('goodnight')
-		elif ("hey buddy" in log) or ("ok buddy" in log) or ("Peabody" in log):
+		elif ("hey buddy" in log) or ("ok buddy" in log) or ("Peabody" in log) or ("ok body" in log):
 			return True
 	else:
 		# commodities
@@ -42,6 +42,9 @@ def main():
 				google("what\'s the weather like " + ('today', 'tomorrow')["tomorrow" in log])
 			else:
 				google(log)
+		elif ("define" in log):
+			google(log)
+
 		# windows
 		elif ("open" in log):
 			keyboard.press(Key.cmd_l)
@@ -52,15 +55,16 @@ def main():
 
 		# media
 		elif ("media" in log) or ("song" in log) or ("Spotify" in log) or ("music" in log):
-			if ("pause" in log) or ("play" in log) or ("resume" in log):
-				press('playpause')
-			elif ("skip" in log) or ("next" in log):
+			if ("skip" in log) or ("next" in log):
 				press('nexttrack')
+			elif ("pause" in log) or ("play" in log) or ("resume" in log):
+				press('playpause')
 			elif ("restart" in log):
 				press('prevtrack')
 			elif ("previous" in log) or ("back" in log):
 				press('prevtrack')
 				press('prevtrack')
+
 		# discord
 		elif ("discord" in log) or ("Discord" in log):
 			if ("deafen" in log) or ("undeafen" in log):
@@ -73,6 +77,7 @@ def main():
 				keyboard.press(Key.alt_r)
 				keyboard.release(Key.ctrl_r)
 				keyboard.release(Key.alt_r)
+
 		# google
 		elif ("google" in log) or ("Google" in log) or ("search" in log):
 			if ("YouTube" in log):
@@ -84,6 +89,7 @@ def main():
 while (True):
 	with sr.Microphone() as src:
 		r.adjust_for_ambient_noise(src)
+
 		if speaking:
 			print("ready")
 		else:
@@ -94,7 +100,6 @@ while (True):
 			log = r.recognize_google(audio)
 			print("{}".format(log))
 			speaking = main()
-
 		except sr.UnknownValueError:
 			print("huh?")
 		except sr.RequestError as e:
